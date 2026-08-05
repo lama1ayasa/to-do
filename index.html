@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق قائمة المهام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        warm: {
+                            50: '#FAF6F0',
+                            100: '#F4ECE1',
+                            200: '#E8D8C8',
+                            300: '#D6C0B3',
+                            400: '#AB886D',
+                            500: '#8D6E63',
+                            600: '#6D4C41',
+                            700: '#4E3629',
+                            800: '#3E2723',
+                            900: '#2C1B18',
+                        },
+                        cream: '#FDFBF7'
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px -5px rgba(78, 54, 41, 0.08)',
+                        'glow': '0 0 20px rgba(171, 136, 109, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #F4ECE1; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #D6C0B3; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #AB886D; }
+    </style>
+</head>
+<body class="bg-warm-50 text-warm-900 min-h-screen flex flex-col items-center p-4 md:p-8 selection:bg-warm-200">
+
+    <div class="w-full max-w-4xl space-y-6 my-auto">
+        
+        <header class="bg-white/90 backdrop-blur-md border border-warm-200/80 rounded-3xl p-6 shadow-soft hover:shadow-glow transition-all duration-500 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-warm-600 to-warm-800 text-cream flex items-center justify-center text-2xl shadow-md transform hover:rotate-6 hover:scale-105 transition-all duration-300">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-warm-900 tracking-tight">إنجازاتي اليومية</h1>
+                    <p class="text-xs md:text-sm text-warm-500 font-medium mt-1 flex items-center gap-1.5" id="current-date-display">
+                        <i class="fa-regular fa-calendar-days text-warm-400"></i>
+                        <span>جاري التحميل...</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-4 md:pt-0 border-warm-100">
+                <div class="flex items-center gap-3">
+                    <div class="relative w-14 h-14 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90 drop-shadow" viewBox="0 0 36 36">
+                            <path class="text-warm-100" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path id="progress-circle" class="text-warm-600 transition-all duration-700 ease-out" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <span id="progress-text" class="absolute text-xs font-bold text-warm-800">0%</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-warm-400 block font-medium">نسبة الإنجاز</span>
+                        <span id="completed-counter" class="text-sm font-bold text-warm-700">0 من 0 مهام</span>
+                    </div>
+                </div>
+
+                <button id="clear-all-btn" class="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-all duration-300 border border-rose-200/60 hover:border-rose-300 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-trash-can"></i>
+                    <span>مسح الكل</span>
+                </button>
+            </div>
+        </header>
+
+        <section class="bg-white border border-warm-200/80 rounded-3xl p-6 shadow-soft hover:shadow-glow transition-all duration-500">
+            <form id="todo-form" class="space-y-4">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <input type="text" id="task-input" placeholder="ما هي مهمتك الجديدة اليوم؟" required class="w-full bg-warm-50/60 border border-warm-200 rounded-2xl px-4 py-3.5 text-sm text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-400/40 focus:border-warm-500 focus:bg-white transition-all duration-300">
+                    </div>
+                    
+                    <div class="flex flex-wrap md:flex-nowrap gap-2">
+                        <select id="priority-select" class="flex-1 md:flex-none bg-warm-50/60 border border-warm-200 rounded-2xl px-3 py-3.5 text-xs text-warm-800 font-medium focus:outline-none focus:ring-2 focus:ring-warm-400/40 focus:border-warm-500 cursor-pointer hover:bg-warm-100/50 transition-all">
+                            <option value="low">أولوية منخفضة</option>
+                            <option value="medium" selected>أولوية متوسطة</option>
+                            <option value="high">أولوية عالية</option>
+                        </select>
+
+                        <select id="category-select" class="flex-1 md:flex-none bg-warm-50/60 border border-warm-200 rounded-2xl px-3 py-3.5 text-xs text-warm-800 font-medium focus:outline-none focus:ring-2 focus:ring-warm-400/40 focus:border-warm-500 cursor-pointer hover:bg-warm-100/50 transition-all">
+                            <option value="دراسة">🎓 دراسة</option>
+                            <option value="عمل">💼 عمل</option>
+                            <option value="شخصي">🌿 شخصي</option>
+                            <option value="أخرى">📌 أخرى</option>
+                        </select>
+
+                        <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-warm-600 to-warm-700 hover:from-warm-700 hover:to-warm-800 text-cream font-semibold px-6 py-3.5 rounded-2xl text-sm transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>إضافة</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/60 backdrop-blur-md p-2.5 rounded-2xl border border-warm-200/60 shadow-sm">
+            <div class="flex bg-warm-100/80 p-1 rounded-xl w-full md:w-auto gap-1" id="filter-buttons">
+                <button data-filter="all" class="filter-btn active flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 bg-white text-warm-900 shadow-sm">الكل</button>
+                <button data-filter="active" class="filter-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-semibold text-warm-600 hover:text-warm-900 transition-all duration-300">المتبقية</button>
+                <button data-filter="completed" class="filter-btn flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-semibold text-warm-600 hover:text-warm-900 transition-all duration-300">المكتملة</button>
+            </div>
+
+            <div class="relative w-full md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-warm-400 text-xs"></i>
+                <input type="text" id="search-input" placeholder="ابحثي في المهمات..." class="w-full bg-white border border-warm-200 rounded-xl pr-9 pl-3 py-2 text-xs text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-400/30 focus:border-warm-400 transition-all duration-300">
+            </div>
+        </section>
+
+        <main class="space-y-3">
+            <ul id="todo-list" class="space-y-3 max-h-[480px] overflow-y-auto custom-scrollbar p-1"></ul>
+            
+            <div id="empty-state" class="hidden text-center py-16 bg-white/60 border border-dashed border-warm-300 rounded-3xl space-y-3 shadow-sm transition-all duration-500">
+                <div class="w-16 h-16 bg-warm-100 text-warm-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-regular fa-folder-open"></i>
+                </div>
+                <p class="text-warm-600 font-medium text-sm">لا توجد مهام مطابقة حالياً!</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
